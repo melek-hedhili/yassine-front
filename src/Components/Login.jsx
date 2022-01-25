@@ -18,36 +18,45 @@ function Login({ history }) {
   }, [history]);
   const submitHandler = async (e) => {
     e.preventDefault();
-    try {
-      const config = {
-        headers: {
-          "content-type": "application/json",
-        },
-      };
+    if (email === "" || password === "") {
+      alert("Please fill your informations");
+    } else {
+      try {
+        const config = {
+          headers: {
+            "content-type": "application/json",
+          },
+        };
 
-      setLoading(true);
-      const data = await axios.post(
-        "https://yassine-backend.herokuapp.com/api/users/login",
-        {
-          email,
-          password,
-        },
-        config
-      );
-      console.log(data);
-      if (data.data.passworderror) {
-        console.log("Error in password pls workkk", data.data.passworderror);
-      } else {
-        console.log("data status", data.data.status);
-        localStorage.setItem("userInfo", JSON.stringify(data));
-        setLoading(false);
-        setTimeout(() => {
+        setLoading(true);
+        const data = await axios.post(
+          "http://localhost:5000/api/users/login",
+          {
+            email,
+            password,
+          },
+          config
+        );
+        console.log(data);
+        console.log("email errr", data.data.email_error);
+        if (data.data.passworderror || data.data.email_error) {
+          if (data.data.passworderror) {
+            alert("Password incorrect");
+          } else {
+            alert("email incorrect");
+          }
+          console.log("Error in password pls workkk", data.data.passworderror);
+        } else if (data.data.token) {
+          console.log("User connected");
+          localStorage.setItem("userInfo", JSON.stringify(data));
+          setLoading(false);
+
           window.location.reload();
-        }, 3000);
+        }
+      } catch (error) {
+        setError("catch error :", error);
+        setLoading(false);
       }
-    } catch (error) {
-      setError("catch error :", error);
-      setLoading(false);
     }
   };
 
